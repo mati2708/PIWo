@@ -1,11 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Mityczny Pionek - Sklep z Grami</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
+
+    <header>
+        <h1><a href="index.html">Mityczny Pionek 🎲</a></h1>
+        <div class="nav-buttons">
+            <button class="btn">Zaloguj / Zarejestruj</button>
+            <button class="btn">🛒 Koszyk (0)</button>
+            <a href="index2.html" class="btn btn-secondary">+ Dodaj pozycję</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="filters">
+            <h3>Filtrowanie</h3>
+            
+            <div class="filter-group">
+                <label>Słowo w opisie / Nazwa</label>
+                <input type="text" placeholder="Szukaj gry...">
+            </div>
+
+            <div class="filter-group">
+                <label>Maksymalna cena (zł)</label>
+                <input type="number" placeholder="Np. 150">
+            </div>
+
+            <div class="filter-group">
+                <label>Rodzaj gry</label>
+                <select>
+                    <option value="">Wszystkie</option>
+                    <option value="strategia">Strategiczna</option>
+                    <option value="impreza">Imprezowa</option>
+                    <option value="karciana">Karciana</option>
+                    <option value="rpg">RPG</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Ilość graczy</label>
+                <input type="number" min="1" placeholder="Np. 4">
+            </div>
+
+            <div class="filter-group">
+                <label>Czas gry (minuty)</label>
+                <input type="number" step="15" placeholder="Np. 60">
+            </div>
+
+            <div class="filter-group">
+                <label>Wydawnictwo</label>
+                <input type="text" placeholder="Np. Rebel, Portal">
+            </div>
+
+            <button class="btn" style="width: 100%;">Filtruj / Szukaj</button>
+        </aside>
+
+        <main class="product-list">
+            
+            <div class="product-card">
+                <h3>Nemesis (Biały Kruk)</h3>
+                <div class="product-details">
+                    <p><strong>Rodzaj:</strong> Strategiczna / Survival</p>
+                    <p><strong>Gracze:</strong> 1 - 5</p>
+                    <p><strong>Czas gry:</strong> 120 min</p>
+                    <p><strong>Wydawnictwo:</strong> Awaken Realms</p>
+                    <p><em>Opis: Przetrwaj na statku pełnym obcych...</em></p>
+                </div>
+                <div class="price">450.00 zł</div>
+                <button class="btn">Do koszyka</button>
+            </div>
+
+            <div class="product-card">
+                <h3>Everdell</h3>
+                <div class="product-details">
+                    <p><strong>Rodzaj:</strong> Rodzinna / Worker Placement</p>
+                    <p><strong>Gracze:</strong> 1 - 4</p>
+                    <p><strong>Czas gry:</strong> 60 min</p>
+                    <p><strong>Wydawnictwo:</strong> Rebel</p>
+                    <p><em>Opis: Zbuduj najpiękniejsze leśne miasto...</em></p>
+                </div>
+                <div class="price">220.00 zł</div>
+                <button class="btn">Do koszyka</button>
+            </div>
+
+        </main>
+    </div>
+
 </body>
 </html>
