@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaawansowana Lista ToDo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Moje Zadania 📝</h1>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Szukaj zadania...">
+            <label>
+                <input type="checkbox" id="caseSensitiveCheck">
+                Ignoruj wielkość liter
+            </label>
+        </div>
+
+        <div class="add-box">
+            <input type="text" id="taskInput" placeholder="Co jest do zrobienia?">
+            <select id="listSelector">
+                <option value="list-urgent">Na wczoraj 🔴</option>
+                <option value="list-normal" selected>Pilne 🟡</option>
+                <option value="list-chill">Mało pilne 🟢</option>
+            </select>
+            <button id="addTaskBtn">Dodaj zadanie</button>
+        </div>
+
+        <button id="undoBtn" class="hidden">↩ Cofnij usunięcie (Ctrl+Z)</button>
+
+        <div class="lists-container">
+            <div class="task-list-wrapper">
+                <h3 class="list-header">Na wczoraj 🔴 (Kliknij, aby zwinąć)</h3>
+                <ul id="list-urgent"></ul>
+            </div>
+
+            <div class="task-list-wrapper">
+                <h3 class="list-header">Pilne 🟡 (Kliknij, aby zwinąć)</h3>
+                <ul id="list-normal"></ul>
+            </div>
+
+            <div class="task-list-wrapper">
+                <h3 class="list-header">Mało pilne 🟢 (Kliknij, aby zwinąć)</h3>
+                <ul id="list-chill"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal hidden">
+        <div class="modal-content">
+            <p id="modalText"></p>
+            <div class="modal-buttons">
+                <button id="confirmBtn" class="btn-danger">Usuń</button>
+                <button id="cancelBtn" class="btn-secondary">Anuluj</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
