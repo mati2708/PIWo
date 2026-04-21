@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🧪 Laboratorium 3: Next.js i Integracja API
 
-## Getting Started
+W tym laboratorium dotychczasowy statyczny projekt został przeniesiony na framework **Next.js**. Aplikacja została ożywiona poprzez podłączenie zewnętrznego źródła danych (API), a także rozbudowana o logikę filtrowania i formularze korzystające z pamięci przeglądarki.
 
-First, run the development server:
+## ✨ Zaimplementowane Funkcjonalności
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Zrealizowano zarówno wymagania podstawowe, jak i rozszerzone (na ocenę 5.0):
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Pobieranie Danych (Fetch):** * Integracja z uczelnianym plikiem `board-games.json`.
+   * Patcher w locie: Skrypt automatycznie poprawiający literówki w ścieżkach do zdjęć u dostawcy API.
+2. **Zaawansowane Filtrowanie na Żywo:**
+   * Wyszukiwanie gier po tytule i opisie.
+   * Filtrowanie po cenie maksymalnej, kategorii, wydawnictwie, ilości graczy oraz czasie gry.
+3. **Paginacja (Podział na strony):**
+   * Wyświetlanie maksymalnie 8 gier na jednej stronie.
+   * Interaktywne przyciski nawigacyjne ("Poprzednia" / "Następna") u góry i u dołu listy.
+4. **Dynamiczny Routing:**
+   * Podstrony szczegółów konkretnej gry z dynamicznym parametrem `[id]`.
+5. **Formularze i LocalStorage:**
+   * Możliwość dodawania nowych gier przez użytkownika.
+   * Możliwość edycji już istniejących gier z API.
+   * Zmiany zachowywane są w pamięci przeglądarki (`localStorage`).
+6. **Custom Hooks:** * Wydzielenie całej logiki pobierania i zapisywania gier do niezależnego hooka `useGames.js` (zasada DRY).
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🚀 Jak uruchomić ten etap lokalnie
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Upewnij się, że masz zainstalowane środowisko **Node.js** (zalecana wersja LTS).
+2. Będąc wewnątrz folderu `lab3`, zainstaluj zależności poleceniem:
+   ```bash
+   npm install
