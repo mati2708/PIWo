@@ -1,14 +1,12 @@
-# ☁️ Laboratorium 4: Baza Danych (Firebase) i Autoryzacja - Wersja MAX (5.0)
+# ☁️ Laboratorium 4: Baza Danych (Firebase) i Autoryzacja
 
-W tym laboratorium aplikacja przeszła potężną transformację z lokalnej witryny do pełnoprawnej aplikacji chmurowej (Fullstack) opartej na ekosystemie Google Firebase. **Zrealizowano wszystkie wymagania z instrukcji, włącznie z rozszerzeniami na ocenę 5.0.**
-
-🌐 **Wersja Live (Vercel):** [TUTAJ WKLEJ SWÓJ LINK Z VERCELA, np. https://mityczny-pionek-lab4.vercel.app]
+🌐 **Wersja Live (Vercel):** [https://pi-wo.vercel.app](https://pi-wo.vercel.app)
 
 ---
 
 ## ✨ Zrealizowane Funkcjonalności
 
-### 🔥 Funkcjonalności Podstawowe (na 4.0):
+### 🔥 Funkcjonalności Podstawowe:
 1. **Baza Danych Firestore (NoSQL):**
    * Aplikacja połączona z chmurą Google Firebase. Dane utrzymywane są w kolekcji `games`.
    * **Auto-Seed:** Wbudowany mechanizm automatycznej migracji – jeśli aplikacja wykryje pustą bazę, samodzielnie parsuje uczelniany plik JSON i wypełnia Firestore danymi początkowymi.
@@ -23,9 +21,8 @@ W tym laboratorium aplikacja przeszła potężną transformację z lokalnej witr
 4. **Moduł Zakupowy:**
    * Obsługa przycisku "Kup Teraz" ustawiającego w bazie flagę `isSold: true`.
    * Interfejs graficzny natychmiastowo wyszarza sprzedaną kartę, nakłada stempel "SPRZEDANE" i blokuje jej interaktywność (`pointer-events`, wyłączone przyciski).
-5. 🌐 **Wersja Live (Vercel):** [https://pi-wo.vercel.app](https://pi-wo.vercel.app)
 
-### 🚀 Funkcjonalności Zaawansowane (na 5.0):
+### 🚀 Funkcjonalności Zaawansowane:
 5. **Paginacja Serwerowa (Pobierania):**
    * Całkowicie usunięto cięcie tablic po stronie klienta (`.slice()`). 
    * Zaimplementowano optymalne odpytywanie bazy. Aplikacja ciągnie dane paczkami, wykorzystując `query()`, `limit()`, `orderBy()` oraz zapamiętane kursory z obiektów firebase do obsługi `startAfter()`.
