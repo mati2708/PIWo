@@ -19,7 +19,13 @@ Tutaj znajduje się historia rozwoju repozytorium wraz z odnośnikami do poszcze
 - [x] **Lab 1:** Podstawy HTML/CSS - Statyczny projekt interfejsu (mockup) strony głównej i formularzy sklepu.
 - [x] **[Lab 2: Vanilla JavaScript (Aplikacja ToDo)](./lab2/README.md)** - *Uwaga: Niezależny, zamknięty miniprojekt.* Zaawansowana lista zadań z obsługą DOM, zdarzeń i logiką biznesową w czystym JS.
 - [x] **[Lab 3: Przejście na Next.js i integracja API](./lab3/README.md)** - Powrót do aplikacji sklepu. Dynamiczne renderowanie list, formularze, routing i zaawansowane filtrowanie.
-- [ ] **Lab 4:** *(Oczekuje na realizację)*
+- [x] **Lab 4 (Wersja 5.0):** Podłączenie chmury **Firebase**. 
+  - Baza NoSQL (Firestore) + Auto-seed danych.
+  - Autoryzacja i logowanie (Google Auth / Email).
+  - Walidacja uprawnień do edycji/usuwania (CRUD).
+  - Paginacja serwerowa (odpytywanie paczkami).
+  - Moduł licytacji z zachowaniem transakcji **ACID** (`runTransaction`).
+  - Wdrożenie (Deploy) na platformę **Vercel**[https://pi-wo.vercel.app](https://pi-wo.vercel.app).
 - [ ] **Lab 5:** *(Oczekuje na realizację)*
 
 ---
