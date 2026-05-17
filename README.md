@@ -1,13 +1,19 @@
 # 🎲 Mityczny Pionek - Sklep z Grami Planszowymi
 
-Witaj w repozytorium projektu "Mityczny Pionek". Jest to aplikacja webowa sklepu z grami planszowymi, tworzona krok po kroku w ramach laboratoriów. 
+Witaj w repozytorium projektu "Mityczny Pionek". Jest to aplikacja webowa sklepu z grami planszowymi, tworzona krok po kroku w ramach laboratoriów PIWo. 
 
-Projekt ewoluuje od prostych statycznych widoków HTML/CSS aż po zaawansowaną aplikację React/Next.js korzystającą z zewnętrznego API.
+Projekt ewoluował od prostych statycznych widoków HTML/CSS, przez aplikację React z własnym API, aż po pełnoprawną aplikację Fullstack opartą na chmurze i serwerowej paginacji.
+
+🚀 **Wersja Live (Vercel): [https://pi-wo.vercel.app](https://pi-wo.vercel.app)**
+
+---
 
 ## 🛠️ Wykorzystane Technologie
-* **Frontend:** React, Next.js, HTML5
+* **Frontend:** React, Next.js
+* **Backend (BaaS):** Google Firebase (Firestore NoSQL, Authentication)
 * **Styling:** Tailwind CSS, Custom CSS
-* **Zarządzanie stanem/danymi:** React Hooks (`useState`, `useEffect`), LocalStorage, Vanilla JS (Lab 2)
+* **Zarządzanie stanem i logiką:** React Hooks (`useState`, `useEffect`), Transakcje ACID (`runTransaction`)
+* **Hosting / CI-CD:** Vercel
 * **Wersjonowanie:** Git & GitHub
 
 ---
@@ -19,13 +25,13 @@ Tutaj znajduje się historia rozwoju repozytorium wraz z odnośnikami do poszcze
 - [x] **Lab 1:** Podstawy HTML/CSS - Statyczny projekt interfejsu (mockup) strony głównej i formularzy sklepu.
 - [x] **[Lab 2: Vanilla JavaScript (Aplikacja ToDo)](./lab2/README.md)** - *Uwaga: Niezależny, zamknięty miniprojekt.* Zaawansowana lista zadań z obsługą DOM, zdarzeń i logiką biznesową w czystym JS.
 - [x] **[Lab 3: Przejście na Next.js i integracja API](./lab3/README.md)** - Powrót do aplikacji sklepu. Dynamiczne renderowanie list, formularze, routing i zaawansowane filtrowanie.
-- [x] **Lab 4 (Wersja 5.0):** Podłączenie chmury **Firebase**. 
+- [x] **[Lab 4: Baza Danych i Autoryzacja (Wersja MAX 5.0)](./lab4/README.md)** - Podłączenie chmury **Firebase**:
   - Baza NoSQL (Firestore) + Auto-seed danych.
   - Autoryzacja i logowanie (Google Auth / Email).
   - Walidacja uprawnień do edycji/usuwania (CRUD).
-  - Paginacja serwerowa (odpytywanie paczkami).
+  - Paginacja serwerowa (odpytywanie paczkami za pomocą kursorów).
   - Moduł licytacji z zachowaniem transakcji **ACID** (`runTransaction`).
-  - Wdrożenie (Deploy) na platformę **Vercel**[https://pi-wo.vercel.app](https://pi-wo.vercel.app).
+  - Wdrożenie (Deploy) na platformę **Vercel**.
 - [ ] **Lab 5:** *(Oczekuje na realizację)*
 
 ---
