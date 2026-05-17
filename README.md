@@ -25,7 +25,7 @@ Tutaj znajduje się historia rozwoju repozytorium wraz z odnośnikami do poszcze
 - [x] **Lab 1:** Podstawy HTML/CSS - Statyczny projekt interfejsu (mockup) strony głównej i formularzy sklepu.
 - [x] **[Lab 2: Vanilla JavaScript (Aplikacja ToDo)](./lab2/README.md)** - *Uwaga: Niezależny, zamknięty miniprojekt.* Zaawansowana lista zadań z obsługą DOM, zdarzeń i logiką biznesową w czystym JS.
 - [x] **[Lab 3: Przejście na Next.js i integracja API](./lab3/README.md)** - Powrót do aplikacji sklepu. Dynamiczne renderowanie list, formularze, routing i zaawansowane filtrowanie.
-- [x] **[Lab 4: Baza Danych i Autoryzacja (Wersja MAX 5.0)](./lab4/README.md)** - Podłączenie chmury **Firebase**:
+- [x] **[Lab 4: Baza Danych i Autoryzacja](./lab4/README.md)** - Podłączenie chmury **Firebase**:
   - Baza NoSQL (Firestore) + Auto-seed danych.
   - Autoryzacja i logowanie (Google Auth / Email).
   - Walidacja uprawnień do edycji/usuwania (CRUD).
