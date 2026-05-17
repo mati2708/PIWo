@@ -1,59 +1,113 @@
-"use client"; // Informuje Next.js, że ten kod wykonuje się po stronie przeglądarki (klienta)
+"use client";
 import { useState, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, doc, setDoc, addDoc, updateDoc, deleteDoc, runTransaction, query, limit, startAfter, orderBy } from 'firebase/firestore';
+import { useAuth } from '@/context/AuthContext';
 
 export function useGames() {
-    // Stan przechowujący tablicę wszystkich gier
     const [games, setGames] = useState([]);
-    // Stan informujący, czy dane wciąż się ładują (zapobiega błędom przed pobraniem)
     const [loading, setLoading] = useState(true);
+    const [lastVisible, setLastVisible] = useState(null); // Kursor do paginacji
+    const [hasMore, setHasMore] = useState(true); // Czy są kolejne strony?
+    const { user } = useAuth();
 
-    // useEffect uruchomi się tylko raz, podczas pierwszego załadowania aplikacji
-    useEffect(() => {
-        // Sprawdzamy, czy mamy już jakieś dane w pamięci przeglądarki (LocalStorage)
-        const localGames = localStorage.getItem('boardGames');
-        
-        if (localGames) {
-            // Jeśli tak, "odmrażamy" je z formatu tekstowego (JSON) na tablicę w JS
-            setGames(JSON.parse(localGames));
+    // PAGINACJA SERWEROWA (Wymóg 5.0)
+    const fetchGames = async (loadMore = false) => {
+        setLoading(true);
+        try {
+            const gamesCollection = collection(db, "games");
+            
+            // Jeśli baza jest pusta, robimy szybki auto-seed
+            const checkSnapshot = await getDocs(gamesCollection);
+            if (checkSnapshot.empty) {
+                const res = await fetch('https://szandala.github.io/piwo-api/board-games.json');
+                const data = await res.json();
+                for (const g of (data.board_games || [])) {
+                    await setDoc(doc(db, "games", g.id.toString()), g);
+                }
+            }
+
+            // Zapytanie z LIMITEM (np. 8 gier na raz)
+            let q = query(gamesCollection, orderBy("id"), limit(8));
+
+            // Jeśli to ładowanie kolejnej strony, zacznij po ostatnim dokumencie
+            if (loadMore && lastVisible) {
+                q = query(gamesCollection, orderBy("id"), startAfter(lastVisible), limit(8));
+            }
+
+            const querySnapshot = await getDocs(q);
+            
+            if (!querySnapshot.empty) {
+                const gamesList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Zapisujemy ostatni dokument, żeby wiedzieć, od czego zacząć następną paczkę
+                setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
+                
+                if (loadMore) {
+                    setGames(prev => [...prev, ...gamesList]); // Doklejamy do istniejących
+                } else {
+                    setGames(gamesList); // Pierwsze ładowanie
+                }
+                
+                // Jeśli pobraliśmy mniej niż 8, znaczy że to już koniec bazy
+                setHasMore(querySnapshot.docs.length === 8);
+            } else {
+                setHasMore(false);
+            }
+        } catch (error) {
+            console.error("Błąd pobierania:", error);
+        } finally {
             setLoading(false);
-        } else {
-            // Jeśli nie, wysyłamy zapytanie do zewnętrznego API
-            fetch('https://szandala.github.io/piwo-api/board-games.json')
-                .then(res => res.json()) // Konwersja odpowiedzi na obiekt JSON
-                .then(data => {
-                    // Zabezpieczenie: Wyciągamy gry z klucza "board_games", ew. tworzymy pustą tablicę
-                    const gamesArray = data.board_games || [];
-                    
-                    setGames(gamesArray);
-                    // Zapisujemy pobrane dane do LocalStorage, żeby nie pobierać ich przy każdym odświeżeniu
-                    localStorage.setItem('boardGames', JSON.stringify(gamesArray));
-                    setLoading(false);
-                })
-                .catch(err => {
-                    console.error("Błąd pobierania gier:", err);
-                    setLoading(false);
-                });
         }
-    }, []); // Pusta tablica zależności oznacza: "wykonaj tylko przy montowaniu komponentu"
-
-    // Funkcja do dodawania nowej gry lub aktualizacji istniejącej
-    const saveGame = (newGame) => {
-        let updatedGames;
-        if (newGame.id) {
-            // EDYCJA: Jeśli gra ma już ID, zamieniamy starą wersję na nową
-            updatedGames = games.map(g => g.id === newGame.id ? newGame : g);
-        } else {
-            // DODAWANIE: Tworzymy unikalne ID na podstawie obecnego czasu
-            newGame.id = Date.now(); 
-            // Tworzymy nową tablicę: bierzemy wszystkie stare gry (...games) i dorzucamy nową
-            updatedGames = [...games, newGame];
-        }
-        
-        // Aktualizujemy stan aplikacji oraz nadpisujemy bazę w LocalStorage
-        setGames(updatedGames);
-        localStorage.setItem('boardGames', JSON.stringify(updatedGames));
     };
 
-    // Zwracamy zmienne i funkcje, by inne pliki mogły z nich korzystać
-    return { games, loading, saveGame };
+    useEffect(() => {
+        fetchGames();
+    }, []);
+
+    // TRANSAKCJA ACID DLA LICYTACJI (Wymóg 5.0)
+    const placeBid = async (gameId, bidAmount) => {
+        if (!user) return { success: false, message: "Musisz być zalogowany!" };
+        
+        const gameRef = doc(db, "games", gameId.toString());
+
+        try {
+            // runTransaction gwarantuje, że nikt nie nadpisze danych w tej samej milisekundzie
+            await runTransaction(db, async (transaction) => {
+                const gameDoc = await transaction.get(gameRef);
+                if (!gameDoc.exists()) throw "Gra nie istnieje!";
+
+                const data = gameDoc.data();
+                if (data.isSold) throw "Gra została już sprzedana!";
+
+                // Sprawdzamy aktualną najwyższą ofertę lub cenę wyjściową
+                const currentBid = data.auction?.current_bid || data.price_pln;
+
+                if (bidAmount <= currentBid) {
+                    throw `Twoja oferta musi być wyższa niż ${currentBid} zł!`;
+                }
+
+                // Bezpieczny zapis nowej oferty
+                transaction.update(gameRef, {
+                    auction: {
+                        current_bid: parseFloat(bidAmount),
+                        highest_bidder_uid: user.uid,
+                        highest_bidder_email: user.email
+                    }
+                });
+            });
+            
+            await fetchGames(); // Odśwież widok
+            return { success: true, message: "Gratulacje, przebiłeś ofertę!" };
+        } catch (error) {
+            console.error("Błąd ACID:", error);
+            return { success: false, message: error };
+        }
+    };
+
+    const saveGame = async (gameData) => { /* Twój dotychczasowy kod saveGame */ };
+    const deleteGame = async (gameId) => { /* Twój dotychczasowy kod deleteGame */ };
+    const buyGame = async (gameId) => { /* Twój dotychczasowy kod buyGame */ };
+
+    return { games, loading, hasMore, fetchGames, placeBid, saveGame, deleteGame, buyGame };
 }

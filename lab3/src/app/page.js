@@ -3,12 +3,13 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useGames } from '@/hooks/useGames';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Home() {
-    // customowy hook do pobierania gier z API/LocalStorage
-    const { games, loading } = useGames();
-    // hook Next.js do nawigacji pomiędzy podstronami
+    
+    const { games, loading, buyGame, fetchGames, hasMore } = useGames();
     const router = useRouter();
+    const { user, logout } = useAuth();
     
     // --- STANY FILTRÓW (React useState) ---
     const [search, setSearch] = useState('');
@@ -17,64 +18,33 @@ export default function Home() {
     const [players, setPlayers] = useState('');
     const [playTime, setPlayTime] = useState('');
     const [publisher, setPublisher] = useState('');
-    
-    // --- STANY PAGINACJI ---
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8; // Liczba gier wyświetlanych na jednej stronie
 
-    // Automatyczny reset paginacji: wraca na 1 stronę, gdy zmieniony zostanie jakikolwiek filtr
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [search, maxPrice, type, players, playTime, publisher]);
+    // Ekran ładowania na czas pobierania danych z Firestore
+    if (loading && games.length === 0) return <div className="p-10 text-center text-xl text-gray-900">Ładowanie gier z chmury... 🎲</div>;
 
-    // Ekran ładowania na czas "pobierania" danych
-    if (loading) return <div className="p-10 text-center text-xl text-gray-900">Ładowanie gier... 🎲</div>;
-
-    // Zabezpieczenie przed błędem "is not a function" - upewniamy się, że to tablica
     const safeGames = Array.isArray(games) ? games : [];
     
-    // --- ZAAWANSOWANA LOGIKA FILTROWANIA ---
-    // Funkcja filter() przechodzi przez każdą grę. Gra zostaje na liście tylko jeśli spełnia wszystkie warunki.
+    // --- LOGIKA FILTROWANIA ---
     const filteredGames = safeGames.filter(game => {
         const searchLower = search.toLowerCase();
-        // Zabezpieczenie: opis z API to czasem tablica, a czasem zwykły tekst (string)
         const descText = Array.isArray(game.description) ? game.description.join(' ') : (game.description || '');
         
-        // Szukaj w tytule lub opisie (jeśli pasek wyszukiwania jest pusty, ignoruj ten filtr)
         const matchSearch = !search || 
             (game.title && game.title.toLowerCase().includes(searchLower)) ||
             descText.toLowerCase().includes(searchLower);
 
-        // Ograniczenie cenowe
         const matchPrice = !maxPrice || game.price_pln <= parseFloat(maxPrice);
-        
-        // Dopasowanie kategorii (np. 'rodzinna', 'strategiczna')
         const matchType = !type || (game.type && game.type.toLowerCase().includes(type.toLowerCase()));
-        
-        // Sprawdzenie, czy szukana liczba graczy mieści się w limitach zdefiniowanych w grze
         const matchPlayers = !players || (game.min_players <= parseInt(players) && game.max_players >= parseInt(players));
-        
-        // Ograniczenie czasowe (gry trwające TyleSamo lub Krócej)
         const matchPlayTime = !playTime || game.avg_play_time_minutes <= parseInt(playTime);
-        
-        // Dopasowanie nazwy wydawnictwa
         const matchPublisher = !publisher || (game.publisher && game.publisher.toLowerCase().includes(publisher.toLowerCase()));
 
-        // Zwracamy true, tylko jeśli WSZYSTKIE powyższe zmienne to true
         return matchSearch && matchPrice && matchType && matchPlayers && matchPlayTime && matchPublisher;
     });
 
-    // --- LOGIKA PAGINACJI ---
-    // Obliczamy ile stron jest potrzebnych (sufit z dzielenia liczby gier przez limit na stronę)
-    const totalPages = Math.ceil(filteredGames.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    // Wycinamy (slice) z pełnej listy tylko te gry, które mają pojawić się na obecnej stronie
-    const currentGames = filteredGames.slice(startIndex, startIndex + itemsPerPage);
-
-    // --- ŁATKA NA OBRAZKI (Fix dla JSON-a z API) ---
+   
     const apiBaseUrl = 'https://szandala.github.io/piwo-api/';
     const fixImagePath = (game) => {
-        // Ręczne poprawki na ewidentne błędy w JSON-ie dostarczonym na zajęcia
         if (game.id === 4) return apiBaseUrl + 'images/board-games/azul.webp';
         if (!game.images || game.images.length === 0) return 'https://via.placeholder.com/300?text=Brak+Zdjecia';
         
@@ -85,35 +55,7 @@ export default function Home() {
             'img/pociagi-szwajcaria.webp': 'images/board-games/pociagi-szwajcaria.jpg'
         };
         if (fixes[path]) return apiBaseUrl + fixes[path];
-        
-        // Domyślna naprawa ścieżki (img/ -> images/board-games/)
         return apiBaseUrl + path.replace('img/', 'images/board-games/');
-    };
-
-    // --- KOMPONENT RYSOWANIA PAGINACJI (DRY - Don't Repeat Yourself) ---
-    const renderPagination = () => {
-        if (totalPages <= 1) return null; // Ukryj, jeśli jest tylko jedna strona
-        return (
-            <div className="flex justify-center items-center gap-4">
-                <button 
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(prev => prev - 1)}
-                    className="bg-[#2c3e50] text-white font-bold py-2 px-4 rounded disabled:opacity-30 transition"
-                >
-                    &laquo; Poprzednia
-                </button>
-                <span className="font-semibold text-gray-700 bg-white py-2 px-4 rounded shadow-sm border border-gray-200">
-                    Strona {currentPage} z {totalPages}
-                </span>
-                <button 
-                    disabled={currentPage >= totalPages}
-                    onClick={() => setCurrentPage(prev => prev + 1)}
-                    className="bg-[#2c3e50] text-white font-bold py-2 px-4 rounded disabled:opacity-30 transition"
-                >
-                    Następna &raquo;
-                </button>
-            </div>
-        );
     };
 
     return (
@@ -123,14 +65,22 @@ export default function Home() {
                 <h1 className="text-2xl tracking-wide font-bold">
                     <Link href="/">Mityczny Pionek 🎲</Link>
                 </h1>
-                <div className="flex gap-3 text-sm md:text-base">
-                    <button className="bg-[#3498db] hover:bg-[#2980b9] text-white font-semibold py-2 px-4 rounded transition">Zaloguj</button>
+                <div className="flex gap-3 text-sm md:text-base items-center">
+                    {user ? (
+                        <button onClick={logout} className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition">
+                            Wyloguj ({user.email || 'Użytkownik'})
+                        </button>
+                    ) : (
+                        <Link href="/login" className="bg-[#3498db] hover:bg-[#2980b9] text-white font-semibold py-2 px-4 rounded transition inline-block">
+                            Zaloguj
+                        </Link>
+                    )}
                     <button className="bg-[#3498db] hover:bg-[#2980b9] text-white font-semibold py-2 px-4 rounded transition">🛒 (0)</button>
                     <Link href="/add" className="bg-[#e67e22] hover:bg-[#d35400] text-white font-semibold py-2 px-4 rounded transition">+ Dodaj pozycję</Link>
                 </div>
             </header>
 
-            {/* Sekcja: GŁÓWNY KONTENER (Sidebar + Content) */}
+            {/* Sekcja: GŁÓWNY KONTENER */}
             <div className="flex flex-col md:flex-row p-6 md:p-10 gap-6">
                 
                 {/* Panel: FILTROWANIE */}
@@ -182,7 +132,6 @@ export default function Home() {
                             className="w-full p-2 border border-gray-300 rounded focus:border-[#3498db] outline-none transition bg-white text-gray-900" />
                     </div>
                     
-                    {/* Reset filtrów poprzez wyczyszczenie stanów komponentu */}
                     <button 
                         onClick={() => {
                             setSearch(''); setMaxPrice(''); setType(''); setPlayers(''); setPlayTime(''); setPublisher('');
@@ -194,36 +143,34 @@ export default function Home() {
 
                 <main className="flex-grow flex flex-col">
                     
-                    {/* PAGINACJA GÓRNA */}
-                    <div className="mb-6">
-                        {renderPagination()}
-                    </div>
-                    
-                    {/* Jeśli żaden produkt nie pasuje do filtrów, wyświetl komunikat */}
                     {filteredGames.length === 0 ? (
                         <div className="bg-white p-10 rounded-lg shadow-sm text-center">
                             <p className="text-xl text-gray-500">Nie znaleziono gier spełniających kryteria. 😢</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {/* Renderowanie poszczególnych kart gier */}
-                            {currentGames.map(game => {
+                            
+                            {filteredGames.map(game => {
                                 const imageUrl = fixImagePath(game);
                                 const shortDesc = Array.isArray(game.description) ? game.description[0] : game.description;
+                                const isSold = game.isSold;
                                 
                                 return (
                                     <div 
                                         key={game.id} 
-                                        onClick={() => router.push(`/game/${game.id}`)}
-                                        className="bg-white p-5 rounded-lg shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition duration-200 cursor-pointer flex flex-col"
+                                        onClick={() => !isSold && router.push(`/game/${game.id}`)}
+                                        className={`bg-white p-5 rounded-lg shadow-sm border border-gray-100 flex flex-col transition duration-200 
+                                            ${isSold ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:shadow-lg hover:-translate-y-1 cursor-pointer'}`}
                                     >
-                                        <div className="w-full h-48 flex justify-center items-center mb-4">
-                                            <img 
-                                                src={imageUrl} 
-                                                alt={game.title}
-                                                className="max-h-full max-w-full object-contain"
-                                                onError={(e) => e.target.src = 'https://via.placeholder.com/300?text=Brak+Zdjecia'}
-                                            />
+                                        <div className="w-full h-48 flex justify-center items-center mb-4 relative">
+                                            {isSold && (
+                                                <div className="absolute inset-0 flex items-center justify-center z-10">
+                                                    <span className="bg-red-600 text-white font-bold text-xl py-2 px-6 rounded-lg transform -rotate-12 border-4 border-white shadow-lg tracking-widest">
+                                                        SPRZEDANE
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <img src={imageUrl} alt={game.title} className="max-h-full max-w-full object-contain" />
                                         </div>
                                         
                                         <h3 className="mb-2 text-[#2c3e50] font-bold text-lg leading-tight">{game.title}</h3>
@@ -235,22 +182,31 @@ export default function Home() {
                                             <p className="mt-2 text-xs italic line-clamp-2">{shortDesc}</p>
                                         </div>
                                         
-                                        <div className="text-xl font-bold text-[#27ae60] mb-4">{game.price_pln} zł</div>
+                                        <div className="text-xl font-bold text-[#27ae60] mb-4">
+                                            {isSold ? 'Niedostępne' : `${game.price_pln} zł`}
+                                        </div>
                                         
                                         <div className="flex gap-2 mt-auto">
                                             <button 
-                                                // e.stopPropagation() zapobiega aktywacji kliknięcia na główny kontener (tzw. event bubbling)
-                                                onClick={(e) => e.stopPropagation()}
-                                                className="bg-[#3498db] hover:bg-[#2980b9] text-white font-semibold py-1.5 px-3 rounded transition flex-1 text-sm"
+                                                disabled={isSold}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    buyGame(game.id);
+                                                }}
+                                                className={`font-semibold py-1.5 px-3 rounded transition flex-1 text-sm 
+                                                    ${isSold ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-[#e74c3c] hover:bg-[#c0392b] text-white shadow-sm'}`}
                                             >
-                                                Do koszyka
+                                                {isSold ? 'Brak towaru' : 'Kup Teraz'}
                                             </button>
+                                            
                                             <button 
+                                                disabled={isSold}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     router.push(`/edit/${game.id}`);
                                                 }}
-                                                className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-1.5 px-3 rounded transition flex-1 text-sm border border-gray-300"
+                                                className={`font-semibold py-1.5 px-3 rounded transition flex-1 text-sm border 
+                                                    ${isSold ? 'bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-300'}`}
                                             >
                                                 Edytuj
                                             </button>
@@ -261,10 +217,18 @@ export default function Home() {
                         </div>
                     )}
 
-                    {/* PAGINACJA DOLNA */}
-                    <div className="mt-8">
-                        {renderPagination()}
-                    </div>
+                    
+                 
+                    {hasMore && search === '' && filteredGames.length > 0 && (
+                        <div className="mt-10 flex justify-center">
+                            <button 
+                                onClick={() => fetchGames(true)} // Wywołanie pobierania kolejnej paczki gier (loadMore = true)
+                                className="bg-[#2c3e50] hover:bg-[#1a252f] text-white font-bold py-3 px-8 rounded-full shadow-md transition transform hover:-translate-y-1"
+                            >
+                                ⬇️ Załaduj kolejne gry z chmury
+                            </button>
+                        </div>
+                    )}
 
                 </main>
             </div>
