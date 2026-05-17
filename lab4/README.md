@@ -23,6 +23,7 @@ W tym laboratorium aplikacja przeszła potężną transformację z lokalnej witr
 4. **Moduł Zakupowy:**
    * Obsługa przycisku "Kup Teraz" ustawiającego w bazie flagę `isSold: true`.
    * Interfejs graficzny natychmiastowo wyszarza sprzedaną kartę, nakłada stempel "SPRZEDANE" i blokuje jej interaktywność (`pointer-events`, wyłączone przyciski).
+5. 🌐 **Wersja Live (Vercel):** [https://pi-wo.vercel.app](https://pi-wo.vercel.app)
 
 ### 🚀 Funkcjonalności Zaawansowane (na 5.0):
 5. **Paginacja Serwerowa (Pobierania):**
