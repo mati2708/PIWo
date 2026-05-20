@@ -2,7 +2,7 @@
 
 Witaj w repozytorium projektu "Mityczny Pionek". Jest to aplikacja webowa sklepu z grami planszowymi, tworzona krok po kroku w ramach laboratoriów PIWo. 
 
-Projekt ewoluował od prostych statycznych widoków HTML/CSS, przez aplikację React z własnym API, aż po pełnoprawną aplikację Fullstack opartą na chmurze i serwerowej paginacji.
+Projekt ewoluował od prostych statycznych widoków HTML/CSS, przez aplikację React z własnym API, aż po pełnoprawną aplikację Fullstack opartą na chmurze, zaawansowanym zarządzaniu stanem i optymalizacji wydajności.
 
 🚀 **Wersja Live (Vercel): [https://pi-wo.vercel.app](https://pi-wo.vercel.app)**
 
@@ -12,7 +12,8 @@ Projekt ewoluował od prostych statycznych widoków HTML/CSS, przez aplikację R
 * **Frontend:** React, Next.js
 * **Backend (BaaS):** Google Firebase (Firestore NoSQL, Authentication)
 * **Styling:** Tailwind CSS, Custom CSS
-* **Zarządzanie stanem i logiką:** React Hooks (`useState`, `useEffect`), Transakcje ACID (`runTransaction`)
+* **Zarządzanie stanem i logiką:** React Context API, `useReducer`, `useMemo`, `useRef`, `useState`, `useEffect`
+* **Transakcje i Chmura:** Transakcje ACID (`runTransaction`), Kursorowa paginacja serwerowa
 * **Hosting / CI-CD:** Vercel
 * **Wersjonowanie:** Git & GitHub
 
@@ -32,7 +33,11 @@ Tutaj znajduje się historia rozwoju repozytorium wraz z odnośnikami do poszcze
   - Paginacja serwerowa (odpytywanie paczkami za pomocą kursorów).
   - Moduł licytacji z zachowaniem transakcji **ACID** (`runTransaction`).
   - Wdrożenie (Deploy) na platformę **Vercel**.
-- [ ] **Lab 5:** *(Oczekuje na realizację)*
+- [x] **[Lab 5: Optymalizacja, Wydajność i UX](./lab5/README.md)** - Usprawnienia interfejsu i zarządzania stanem:
+  - Wdrożenie wzorca **Reducer** (`useReducer` + `localStorage`) do obsługi globalnego koszyka zakupowego.
+  - Optymalizacja wydajności filtrowania bazy gier przy użyciu hooka **`useMemo`** (cache wyników).
+  - Wykorzystanie komponentów niekontrolowanych i hooka **`useRef`** w polach tekstowych formularzy (eliminacja zbędnych renderów podczas pisania).
+  - Dokończenie i uszczelnienie systemu uprawnień (CRUD) w powiązaniu z paginacją.
 
 ---
 
